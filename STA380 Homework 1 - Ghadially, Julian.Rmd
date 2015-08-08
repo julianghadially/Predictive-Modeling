@@ -11,6 +11,7 @@ library(mosaic)
 attach(georgia)
 library(foreach)
 library(ggplot2)
+library(fImport)
 
 ```
 
@@ -24,7 +25,7 @@ In order to evaluate whether voting on certain voting equipment leads to a highe
 
 Looking at a box plot of the rate of undercounts, there is not much distinction between using different equipment. 
 
-```{r}
+```{r, echo = FALSE}
 bwplot((ballots-votes)/ballots~equip, data = georgia, ylab = 'Rate of Undercounts', xlab = 'Equipment Type', main = "Undercounting Votes in Georgia")
 ```
 The medians fall in very similar areas and the interquartile range for each equipment type is very similar. The only difference is the occasional high-rate observed with optical equipment. 
@@ -33,14 +34,14 @@ The medians fall in very similar areas and the interquartile range for each equi
 We observe that if there were differences in the undercount rate for the various equipment types, there would be different impacts on poor versus nonpoor communities.
 
 
-```{r}
+```{r, echo = FALSE}
 equip_poor_contingency = xtabs(~equip + poor, data = georgia)
 equip_poor_contingency
 ```
 
 For example, undercounting resulting from levers would have an unproportionately lare effect on the poor. We calculate the relative likelihood of using levers if you're poor as well as the odds of using levers for the poor. We find that poor areas are 1.59 times as likely to use levers, and if you live in a poor area, there is a 62.5% chance your voting county uses a lever system.
 
-```{r}
+```{r, echo = FALSE}
 Lever_odds_poor = equip_poor_contingency['LEVER',2]/sum(equip_poor_contingency[,2])
 Lever_odds_notpoor = equip_poor_contingency['LEVER',1]/sum(equip_poor_contingency[1,])
 relative_odds = Lever_odds_poor/Lever_odds_notpoor
@@ -56,7 +57,7 @@ Lets look at the potential undercount rates for the various equipment types and 
 
 We see that the punch and lever polling equipment tend to be used in regions with higher perAA than the optical equipment. They're perAA median median is higher and the interquartile range, while overlapping with optical, is above optical's median.
 
-```{r}
+```{r, echo = FALSE}
 bwplot(perAA~equip)
 ```
 
@@ -74,8 +75,7 @@ In summary, our plots seem to suggest that different equipment types don't affec
 ###Exercise 2
 ###Bootstrapping ETF Funds
 
-```{r}
-library(fImport)
+```{r, echo = FALSE}
 stocks = c('SPY', 'TLT', 'LQD', 'EEM', 'VNQ')
 prices = yahooSeries(stocks, from = '2010-01-01', to = '2015-08-01')
 source('Data/YahooPricesToReturns.R')
@@ -108,7 +108,7 @@ Portfolio 1: Even-split.
 * The Even portfolio is made up of five ETF's, tickers SPY, TLT, LQD, EEM, and VNQ, where each holding has 20% of the overall wealth.
 
 
-```{r}
+```{r, echo = FALSE}
 set.seed(1)
 
 #Bootstrap
@@ -132,9 +132,10 @@ for (j in 1:20) {
 #plot(wealthtracker, main = 'Wealth Accumulation From One 20-Day Sample')
 ```
 
-After running the bootstrap, we see that the standard deviation is $3084 and the expected return is $100831, or .8% over 20 days. Risk for this model: There is a 95% chance that this portfolio will have a final value above $95,644.29
+After running the bootstrap, we see that the standard deviation is $3084 and the expected return is $100831, or .8% over 20 days. 
+* 20-day Value at Risk: There is a 5% chance that this portfolio will have a value below $95,644.29 in 20 days.
 
-```{r}
+```{r, echo = FALSE}
 mean_even_split = mean(finalwealth)
 mean_even_split
 sd_even_split = sd(finalwealth)
@@ -142,11 +143,10 @@ sd_even_split
 quantile(finalwealth, probs = .05)
 ```
 
-The following histogram depicts the variance. Vertical lines are plotted at 5%, 50%, and 95% of the data.
-
-```{r}
-hist(finalwealth, breaks = 7, main = 'Variation in Wealth: Even-Split Portfolio', xlab = 'Wealth After 20 Days')
-abline(v = quantile(finalwealth, probs = c(.05,.5,.95)), lwd = 3, col = 'red')
+```{r, echo = FALSE}
+#I originally used the following histogram depicts the variance. Vertical lines were plotted at 5%, 50%, and 95% of the data. But the histogram doesn't really add much
+#hist(finalwealth, breaks = 7, main = 'Variation in Wealth: Even-Split Portfolio', xlab = 'Wealth After 20 Days')
+#abline(v = quantile(finalwealth, probs = c(.05,.5,.95)), lwd = 3, col = 'red')
 ```
 
 
@@ -179,27 +179,27 @@ for (j in 1:20) {
 
 #plot(wealthtracker, main = 'Wealth Accumulation From One 20-Day Sample')
 ```
-
-The safe portfolio has an expected return of $100962.10 and Variance of $1995:
-
-```{r}
+```{r, echo = FALSE}
 mean_safe = mean(safe_finalwealth)
 mean_safe
 sd_safe = sd(safe_finalwealth)
 sd_safe
 ```
 
-Risk for the safe portfolio: there is a 95% chance that the final wealth will be above $98237.11.
-This is much higher than the even-split porfolio's 95% threshold of 95644.29.
+After bootstrapping 200 samples, the safe portfolio had an expected return of $100962.10 and Variance of $1995.
 
-```{r}
+Value at Risk for the safe portfolio: there is a 5% chance that the final wealth will lose more than $98237.11.
+This is much higher than the even-split porfolio's value at 5% risk of $95644.29.
+
+```{r, echo = FALSE}
 quantile(safe_finalwealth, probs = .05)
 ```
 
-The histogram below has a much narrower spread than the even-split portfolio. The vertical lines correspond to 5%, 50%, and 95% probabilities.
-```{r}
-hist(safe_finalwealth, breaks = 7, main = 'Variation in Wealth: Safe Portfolio', xlab = 'Wealth After 20 Days')
-abline(v = quantile(safe_finalwealth, probs = c(.05,.5,.95)), lwd = 3, col = 'red')
+
+```{r, echo = FALSE}
+#The histogram below has a much narrower spread than the even-split portfolio. The vertical lines correspond to 5%, 50%, and 95% probabilities.
+#hist(safe_finalwealth, breaks = 7, main = 'Variation in Wealth: Safe Portfolio', xlab = 'Wealth After 20 Days')
+#abline(v = quantile(safe_finalwealth, probs = c(.05,.5,.95)), lwd = 3, col = 'red')
 ```
 
 Next we will look at Portfolio 3
@@ -208,7 +208,7 @@ Portfolio 3: Aggressive Portfolio
 
 
 
-```{r}
+```{r, echo = FALSE}
 set.seed(1)
 #Bootstrap
 nboot = 200
@@ -229,24 +229,22 @@ for (j in 1:20) {
 }
 #plot(wealthtracker, main = 'Wealth Accumulation From One 20-Day Sample')
 ```
-
-The expected return and variance for the aggressive portfolio is $101162 and $5667
-
-```{r}
+```{r, echo = FALSE}
 mean_aggressive = mean(aggressive_finalwealth)
 mean_aggressive
 sd_aggressive = sd(aggressive_finalwealth)
 sd_aggressive
 quantile(aggressive_finalwealth, probs = c(.05,.95))
 ```
-
-The following histogram displays the spread, which is much larger than both the even-split and the safe portfolio. We observe this by looking at the 5% and 95% vertical lines, which lie at $91235.73 and $110938. The implied risk is that 95% of the time, this portfolio will make more than $91235.73
-
-```{r}
-hist(aggressive_finalwealth, breaks = 7, main = 'Variation in Wealth: Aggressive Portfolio', xlab = 'Wealth After 20 Days')
-abline(v = quantile(aggressive_finalwealth, probs = c(.05,.5,.95)), lwd = 3, col = 'red')
+```{r, echo = FALSE}
+#The following histogram displays the spread, which is much larger than both the even-split and the safe portfolio. We observe this by looking at the 5% and 95% vertical lines, which lie at $91235.73 and $110938.
+#hist(aggressive_finalwealth, breaks = 7, main = 'Variation in Wealth: Aggressive Portfolio', xlab = 'Wealth After 20 Days')
+#abline(v = quantile(aggressive_finalwealth, probs = c(.05,.5,.95)), lwd = 3, col = 'red')
 ```
 
+The expected return and variance for the aggressive portfolio is $101162 and $5667
+
+* 20-day value at risk: There is a 5% chance that the final return will be below $91235.73.
 
 We would like to compare the variance and the return of these portfolios graphically:
 
@@ -257,12 +255,12 @@ qplot(x =colnames, y = value, data= portfolioreturns, xlab = 'Portfolio', ylab =
 #cor(returns)
 #plot(prices$TLT.Close, type = 'l')
 
-comp_portfolio = data.frame('mean' = c(mean_even_split, mean_safe, mean_aggressive), 'sdev' = c(sd_even_split,sd_safe,sd_aggressive), row.names = c('Even Split', 'Safe', 'Aggressive'))
+comp_portfolio = data.frame('Expected_Return' = c((mean_even_split-100000)/1000, (mean_safe-100000)/1000, (mean_aggressive-100000)/1000), 'sdev' = c(sd_even_split/1000,sd_safe/1000,sd_aggressive/1000), row.names = c('Even Split', 'Safe', 'Aggressive'))
 
-ggplot(data = comp_portfolio, aes(sdev, mean, group = rownames(comp_portfolio), shape = rownames(comp_portfolio))) + geom_point()
+ggplot(data = comp_portfolio, aes(sdev, Expected_Return, group = rownames(comp_portfolio), shape = rownames(comp_portfolio))) + geom_point() + labs(y = 'Percent Return (%)', x = 'Standard Deviation (%)', title = 'Portfolio Comparison')
 ```
 
-Based on mean and standard deviation, the safe portfolio is better than the even-split because it has a higher expected return and a lower variance. However, the aggressive portfolio may be a good option for a risk-avid individual who is willing to accept additional risk in return for higher expected returns.
+Based on expected return and standard deviation, the safe portfolio is better than the even-split because it has a higher expected return and a lower variance. However, the aggressive portfolio may be a good option for a risk-avid individual who is willing to accept additional risk in return for higher expected returns.
 
 
 
@@ -278,7 +276,7 @@ Based on mean and standard deviation, the safe portfolio is better than the even
 ###Clustering and PCA
 
 Principal component analysis is run on scaled wine data as follows:
-```{r}
+```{r, echo = FALSE}
 library(ggplot2)
 library(mosaic)
 wine = read.csv('Data/wine.csv')
@@ -291,13 +289,13 @@ qplot(x= 1:11, y = pr.ve, xlab = 'Principal Component', ylab = 'Percent Variance
 
 We see from the graph above how we need multiple principal components to explain all the variance. The first two explain only 47.3% of the Variance. In the following graph, we can see visually that with 47.3% varience explained, the first two PC's do a great job separating reds from whites. This is only from two PCs. If we were to add dimensions with the rest of the PCs, we would get a more segregated split between red and white in the higher dimension space.
 
-```{r}
+```{r, echo = FALSE}
 qplot(pr.out$x[,1], pr.out$x[,2], color = wine$color, xlab = 'Principal Component 1', ylab = 'Principal Component 2', main = 'Predicting Wine Color')
 ```
 
 On the other hand, the variance explained by the first two principal components have little ability to explain differences in quality.
 
-```{r}
+```{r, echo = FALSE}
 qplot(pr.out$x[,1], pr.out$x[,2], color = wine$quality, xlab = 'Principal Component 1', ylab = 'Principal Component 2', main = 'Predicting Wine Color')
 #goodwine = which(wine$quality > 6)
 #pr.out$x[goodwine,]
@@ -308,7 +306,7 @@ qplot(pr.out$x[,1], pr.out$x[,2], color = wine$quality, xlab = 'Principal Compon
 
 K-means clustering is run on all chemical property variables. We plot the result from k-means clustering, counting the number of assignments in each cluster correspond to the correct assignment and the assignment of opposite wine color. This plot suggests a high level of accuracy - nearly all of the white assignments were in fact white, and the same is true of assignments to red wine.
 
-```{r}
+```{r, echo = FALSE}
 wineCentered = scale(wine[1:11], center = TRUE, scale = TRUE)
 clusters = kmeans(wineCentered, centers = 2, nstart = 25)
 qplot(factor(clusters$cluster), fill = wine$color, xlab = 'cluster assignment', main = 'Accuracy of K-means Clusters')
@@ -320,7 +318,7 @@ qplot(factor(clusters$cluster), fill = wine$color, xlab = 'cluster assignment', 
 
 We see in the following contingency table and graph, that k-means is not able to select high quality and low quality wines. At first, I hypothesized that this was due to the chemical differences between red and white driving k-means toward identifying only that distinction. However, after running k-means on red wines alone, it seems as though the same inability to predict quality given the clusters existed. Thus, either the quality cannot be determined using these chemical properties, or the wine snobs are not as good at tasting as their egos would suggest!
 
-```{r}
+```{r, echo = FALSE}
 highquality = wine$quality < 6
 highquality = highquality*1
 
@@ -365,7 +363,7 @@ However, the variance explained by PCA also did a great job separating red wines
 
 In order to identify market segments, we must first clean the user data. The chatter, x, and unspecified categories don't tell us anything about segments, so they should be removed from the data set. Next, the adult category should be removed since twitter bots make a lot of this data hidden from the data.
 
-```{r}
+```{r, echo = FALSE}
 NutrientH20 = read.csv('Data/social_marketing.csv')
 NutrientH20_processed = NutrientH20[,3:35]
 ```
@@ -393,7 +391,7 @@ K-means was run with nstarts = 50 in order to increase the probability of select
 
 Summary of k-means cluster sizes:
 
-```{r}
+```{r, echo = FALSE}
 set.seed(1)
 clusters2 = kmeans(NutrientH20_processed, centers = 5, nstart = 50)
 qplot(factor(clusters2$cluster), xlab = "clusters")
@@ -405,7 +403,7 @@ summary(factor(clusters2$cluster))
 **Cooking, Beauty, and Fashion Market Segment**
 569 users fell into the first market segment. This market segment is interested in cooking, beauty and fashion. This is a very well defined segment with an average of 11 tweets per week in cooking, over 5 tweets per week for fashion, and around 4 tweets per week in beauty. The quality of this segment is amplified by their affinity for sharing photos.
 
-```{r}
+```{r, echo = FALSE}
 mask1 = which(clusters2$cluster ==1) #use the index to mask the nutrientH20 and then count the most frequent posts to identify each group.
 C1 = NutrientH20_processed[mask1,]
 C1interests = apply(C1, MARGIN = 2, FUN = mean)
@@ -417,7 +415,7 @@ qplot(x= names(C1interests), y = C1interests, xlab = 'Tweet Category', ylab = 'A
 **Miscellaneous Segment**
 The second segment is the largest with 5100 users, and thus very noisy. These users did not fall nicely in any of the other categories.
 
-```{r}
+```{r, echo = FALSE}
 mask2 = which(clusters2$cluster == 2)
 C2 = NutrientH20_processed[mask2,]
 C2interests = apply(C2, MARGIN = 2, FUN = mean)
@@ -429,7 +427,7 @@ qplot(x= names(C2interests), y = C2interests, xlab = 'Tweet Category', ylab = 'A
 **Collegiate Gamers Segment**
 These 429 collegiate gamers need their NutrientH20 beverages to stay hydrated at the in front of their game console all throughout the night. Given the size of this market, it may be advisable for NutrientH20 to tweet material related to both college students and gamers.
 
-```{r}
+```{r, echo = FALSE}
 mask3 = which(clusters2$cluster == 3)
 C3 = NutrientH20_processed[mask3,]
 C3interests = apply(C3, MARGIN = 2, FUN = mean)
@@ -441,7 +439,7 @@ qplot(x= names(C3interests), y = C3interests, xlab = 'category', ylab = 'Average
 **Travellers and Politically Active Segment**
 The fourth market segmet, with 709 users, uses twitter to express their political views. They are interested in news, travel and politics.
 
-```{r}
+```{r, echo = FALSE}
 mask4 = which(clusters2$cluster == 4)
 C4 = NutrientH20_processed[mask4,]
 C4interests = apply(C4, MARGIN = 2, FUN = mean)
@@ -453,7 +451,7 @@ qplot(x= names(C4interests), y = C4interests, xlab = 'category', ylab = 'Average
 **Health and Fitness Segment**
 This health and fitness-loving segment makes up 1075 of NutrientH20's users. This market segment is a large, high quality segment for NutrientH20 because customers in this market care about fitness and health. Fitness and health is important for any healthy beverage company (Assuming NutrientH20 is involved in nutritious beverage as this made-up name implies). These customers will be seen as decision leaders when it comes to beverage choices since they voice their opinions about health over 10 times a week and about fitness around 6 times a week.
 
-```{r}
+```{r, echo = FALSE}
 mask5 = which(clusters2$cluster == 5)
 C5 = NutrientH20_processed[mask5,]
 C5interests = apply(C5, MARGIN = 2, FUN = mean)
