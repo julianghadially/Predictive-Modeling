@@ -408,6 +408,10 @@ mask1 = which(clusters2$cluster ==1) #use the index to mask the nutrientH20 and 
 C1 = NutrientH20_processed[mask1,]
 C1interests = apply(C1, MARGIN = 2, FUN = mean)
 qplot(x= names(C1interests), y = C1interests, xlab = 'Tweet Category', ylab = 'Average Number of Tweets Over One Week', main = 'Cooking, Beauty, and Fashion (1st) Market Segment') + geom_bar(stat = "identity") + theme(axis.text.x = element_text(angle = 90))
+
+
+data.frame = c(1,2,3,4,5)
+x = names(C1interests$Narcotics), y = C1interests$Narcotics
 ```
 
 

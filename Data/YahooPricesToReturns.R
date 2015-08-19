@@ -10,3 +10,14 @@ YahooPricesToReturns = function(series) {
 }
 
 #YahooPricesToReturns is code written by the professor, Dr. James Scott for the Predictive Modeling course.
+
+
+countsToPctChng = function(series) {
+  Narcotics.Change = rep(NA,36)
+  for (i in 1:35) {
+    percChange = (series$Narcotics.Cases[i+1] - series$Narcotics.Cases[i])/series$Narcotics.Cases[i]
+    Narcotics.Change[i+1] = percChange
+  }
+  return Narcotics.Change
+}
+
