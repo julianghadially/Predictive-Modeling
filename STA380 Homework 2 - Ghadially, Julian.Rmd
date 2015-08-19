@@ -4,15 +4,6 @@ author: "Julian Ghadially"
 date: "August 17, 2015"
 output: html_document
 ---
-```{r, echo = FALSE, eval = FALSE}
-#P2
-#*you should use cv to test for number of PC's*
-#P3
-#**????????Should I say why I chose confidence ?????????????????? lift is confidence over the support of the right hand side i believe**
-```
-
-
-
 
 ##Problem 1: Flights at Austin Bergstrom International Airport
 
