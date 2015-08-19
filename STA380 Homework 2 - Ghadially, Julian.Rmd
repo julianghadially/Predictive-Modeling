@@ -16,33 +16,49 @@ output: html_document
 
 ##Problem 1: Flights at Austin Bergstrom International Airport
 
-Do a time delay plot by airline.
+Analysis shows that departure delay time at Austin Bergstrom Airport increases as it gets later in the day, see figure one. 
+Furthermore, United Airlines is drastically less punctual than the other major airlines. This is not due to a smaller number of flights since our data contains 1866 United Airlines flights.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, results = 'hide', include = FALSE, warning=FALSE}
 library(ggplot2)
 library(timeDate)
 library(mosaic)
 AUS = read.csv('Data/Abia.csv')
-hist(AUS$DepDelay)
+AUS$CRSDepTime = as.character(AUS$CRSDepTime%/%100) # round down the Hour
+
+#hist(AUS$DepDelay)
 #head(AUS)
-head(AUS$DepDelay%%60)
-bwplot(DepDelay~cut(CRSDepTime, 5), data = AUS)
+#head(AUS$DepDelay%%60)
+#bwplot(DepDelay~cut(CRSDepTime, 5), data = AUS)
 
 #strptime(as.character(AUS$CRSDepTime), format = "%H%M")[1:10]
-AUS$CRSDepTime = as.character(AUS$CRSDepTime%/%100)
+
 #bwplot(DepDelay~factor(CRSDepTime), data = AUS)
+
 df = aggregate(DepDelay~CRSDepTime, data = AUS, FUN = mean)
-df = data.frame('DepHour' = df[[1]], 'Delay' = df[[2]])
+df = data.frame('DepHour' = df[[1]], 'Delay' = df[[2]], 'Airline' = rep('All', length(df[[2]])))
 
 df = rbind(df[16:20,], df[2:15,])
 l1 = df[[1]]
 l2 = df[[2]]
 df2 = data.frame('DepHour' = l1, 'Delay' = l2)
-#qplot(x = df2$DepHour, y = df2$Delay, xlab = 'Departure Hour', ylab = 'Average Delay (min)', main = 'Delays by hour') + geom_point() + geom_line(stat = 'identity')
+qplot(x = df2$DepHour, y = df2$Delay, xlab = 'Departure Hour', ylab = 'Average Delay (min)', main = 'Delays by hour') + geom_point() + geom_bar(stat = 'identity')
 
-#ggplot2(data = df, aes(x = DepHour, y = Delay, group = ))
+
+df = aggregate(DepDelay~CRSDepTime + UniqueCarrier, data = AUS, FUN = mean)
+df = data.frame('DepHour' = df[[1]], 'Delay' = df[[3]], 'Airline' = df$UniqueCarrier)
+
+mask = df$Airline %in% c('AA','CO','DL','UA')
+df = df[mask,]
+
+
+
 ```
 
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+qplot(x = df2$DepHour, y = df2$Delay, xlab = 'Departure Hour', ylab = 'Average Delay) (min)', main = 'Total Delays by hour') + geom_point() + geom_bar(stat = 'identity')
+ggplot(data = df, aes(DepHour, Delay)) + geom_line(aes(color = Airline, group = Airline)) + xlab('Departure Hour') + ylab('Average Delay (min)') + ggtitle('Delays by Airline') + scale_color_discrete(name="Airlines", breaks=c('AA','CO','DL','UA'), labels=c("American", "Continental", "Delta", "United")) + scale_colour_manual(values = c('red','blue','orange','black'))
+```
 
 
 ##Problem 2: Reuters Author Attribution
@@ -69,103 +85,7 @@ Also, author attribution varied for different authors. the table below displays 
 
 
 
-```{r, echo = FALSE, eval = FALSE}
-'''library(tm)
-source(\'Data/textutils.R\')
-stories.and.authors.list = read.directory.of.directories(\'Data/ReutersC50/C50train\')
-all.stories = stories.and.authors.list[[1]]
-authors = stories.and.authors.list[2]
-authors = authors[[1]]
-authors_unique = unique(authors)
-
-my_corpus = Corpus(VectorSource(all.stories))
-my_corpus = tm_map(my_corpus, content_transformer(tolower))
-my_corpus = tm_map(my_corpus, content_transformer(removeNumbers))
-my_corpus = tm_map(my_corpus, content_transformer(removePunctuation))
-my_corpus = tm_map(my_corpus, content_transformer(stripWhitespace))
-my_corpus = tm_map(my_corpus, content_transformer(removeWords), stopwords("SMART"))
-
-DTM = DocumentTermMatrix(my_corpus)
-class(DTM)
-inspect(DTM[1:10,1:20])
-DTM = removeSparseTerms(DTM, 0.975)
-X = as.matrix(DTM)
-
-smooth_count = 1/nrow(X)
-w_authors = rowsum(X + smooth_count, authors)
-rowSums
-#w_authors = w_all/rowSums(w_all)
-w_authors = w_all/sum(w_all)
-w_authors = log(w_authors)
-
-
-###########################------------TEST---------------
-test.stories.and.authors.list = read.directory.of.directories(\'Data/ReutersC50/C50test\')
-test.all.stories = test.stories.and.authors.list[[1]]
-test.authors = test.stories.and.authors.list[2]
-test.authors = test.authors[[1]]
-
-my_test_corpus = Corpus(VectorSource(test.all.stories))
-my_test_corpus = tm_map(my_test_corpus, content_transformer(tolower))
-my_test_corpus = tm_map(my_test_corpus, content_transformer(removeNumbers))
-my_test_corpus = tm_map(my_test_corpus, content_transformer(removePunctuation))
-my_test_corpus = tm_map(my_test_corpus, content_transformer(stripWhitespace))
-my_test_corpus = tm_map(my_test_corpus, content_transformer(removeWords), stopwords("SMART"))
-
-test.DTM = DocumentTermMatrix(my_test_corpus)
-class(test.DTM)
-inspect(test.DTM[1:10,1:20])
-test.DTM = removeSparseTerms(test.DTM, 0.975)
-X.test = as.matrix(test.DTM)
-
-
-#Naive-bayes
-for (j in 1:50) {
-  Bayes = NULL
-  for (i in 1:50) {
-    Bayes = append(Bayes, sum(X.test[j,]*w_authors[i]))
-  }
-  attributed.author = which(Bayes == max(Bayes))
-  attributed.author
-  print(authors_unique[attributed.author])
-}'''
-
-
-#train = sample(1:len(X), len(X)*.7)
-#X_train = x[train,]
-#get likelihoods per author
-#authors_unique = unique(authors)
-
-#for (author in authors_unique) {
-#  count_author = sum(authors == author)
-#}
-#prev_author = authors[1]
-#author_idx_set = (authors == authors[1])
-#num_author_docs = sum(authors == authors[1])
-#author_word_count = sum(X[author_idx_set,])
-#w_likelihoods_per_author = NULL
-#w_likelihood_per_author = append(w_likelihood_per_author, w_all/author_word_count)
-#j = 1
-
-
-#for (i in 1:2500) {
-#  if (prev_author != authors[i]) {
-#    #w_likelihood_per_author[j] = colSums(X[i-num_author_docs:(i-1)] + smooth_count)
-#    num_author_docs = sum(authors == authors[i])
-#    author_idx_set = (authors == authors[i])
-#    author_word_count = sum(X[author_idx_set,])
-#  }
-#  w_likelihood_per_author = append(w_likelihood_per_author, w_all/author_word_count)
-#}
-#all.stories.vec = LoW_to_countvector(all.stories)
-#all.stories.std = standardize.ragged(all.stories.vec)
-#all.stories.std = remove.singletons.ragged(all.stories.std)
-#all.stories.DTM = make.BoW.frame(all.stories.std) #make document term matrix
-```
-
-
-
-```{r, echo = FALSE, result = FALSE}
+```{r, echo = FALSE, results = FALSE, include = FALSE}
 #library(XML)
 library(tm)
 source('Data/textutils.R')
@@ -231,7 +151,7 @@ goodclassifications/sum(goodclassifications, misclassifications)
 ```
 
 
-```{r}
+```{r, echo = FALSE}
 goodclassifications = 0
 misclassifications = 0
 misclass_per_author = NULL
@@ -261,19 +181,21 @@ mpa.df
 **Random Forest Model**
 
 Naive Bayes did well predicting authors. Random Forests can also be applied to the same bag of words analysis. In order to do so, the bag of words model needs less variables. We can choose a subset of variables using principal component analysis (PCA). PCA generates 1422 principal components. However, 1422 variables for 2500 observations would produce too much variability error. Thus, we select the top principal components. The number of principal components should be selected using cross validation, for increased accuracy. 
-Using 50 principal components, the random forest model is fit to the training data and used to predict on the test data. The percent of correct author attributions obtained is **66%.** This is higher than the Naive Bayes because Random Forest is using more important components dictated by PCA. As a result, the five authors that were difficult to predict are less difficult to predict. shown below is a table of prediction accuracy for each author by Random Forests.
+Using 50 principal components, the random forest model is fit to the training data and used to predict on the test data. mtry is set to 4 and number of trees to 100. The percent of correct author attributions obtained is **66%.** This is higher than the Naive Bayes because Random Forest is using more important components dictated by PCA. As a result, the five authors that were difficult to predict are less difficult to predict. shown below is a table of prediction accuracy for each author by Random Forests.
 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, result = FALSE, include = FALSE}
 library(randomForest)
 PC_X_train = prcomp(X_train, center = TRUE, scale = TRUE)
 pr.var = PC_X_train$sdev^2
 pr.ve = pr.var/sum(pr.var)
 
+
+
 PC_X_test = prcomp(X_test, center = TRUE, scale = TRUE)
 
 
-rf.tree = randomForest(x = PC_X_train$x[,1:50], y = factor(authors_train), ntree = 50, mtry = 4)
+rf.tree = randomForest(x = PC_X_train$x[,1:50], y = factor(authors_train), ntree = 100, mtry = 4)
 yhat = predict(rf.tree, newx = PC_X_test$x[,1:50])
 sum(yhat == test.authors) / (sum(yhat!= test.authors) + sum(yhat == test.authors))
 
@@ -292,6 +214,9 @@ for (i in 1:length(yhat)) {
   }
 }
 mpa.df = data.frame(x = authors_unique, y = misclass_per_author)
+
+```
+```{r, echo = FALSE}
 mpa.df
 ```
 
@@ -303,12 +228,21 @@ mpa.df
 
 ##Problem 3: Association Rule Mining
 
-Association between grocery items is important for grocery stores because it can help them understand what items are being bought together, which can in tern help them manage supply and appropriately place inventory and promotions. Associations for groceries from groceries.txt were gathered using a minimum support of .01 and confidence of .5. The  associations found are displayed below. This analysis points to two common items, milk and vegetables associated with particular types of products. purchase of milk is associated with eggs and various dairy products, and purchase of "other vegetables"" is associated with purchase of various produce. These all have a support over .01, which means that 10% of all grocery carts contained these associations. They also all have a confidence greater than .5, which means that of grocery carts containing itemset A, over 50% contained the righthand side itemset. 
+Association between grocery items is important for grocery stores because it can help them understand what items are being bought together, which can in tern help them manage supply and appropriately place inventory and promotions. Associations for groceries from groceries.txt were gathered using a minimum support of .01 and confidence of .5. The  associations found are displayed below. 
+This analysis points to two common items, milk and vegetables associated with particular types of products. Purchase of milk is associated with eggs and various dairy products, and purchase of "other vegetables"" is associated with purchase of various produce. These all have a support over .01, which means that 10% of all grocery carts contained these associations. They also all have a confidence greater than .5, which means that for grocery carts containing itemset A, over 50% contained the righthand side itemset. 
+
+The drawback of the association rules found is that there might be a statistical dependence resulting from milk and vegetables being very common. Thus, we'd like to also find association rules for less common items. We can select for higher lifts, in order to consider items with less support. (Lift evaluates confidence divided by support).
+
+When we select for higher lifts, we find many interesting association rules, which have high confidences. These are shown below under, "Using Lift." In particular we find that 90% of itemsets containing liquor and wine also contain bottled beer. Hamburger meat, whiped/sour cream, and yogurt is associated with butter. Also, popcorn and soda item sets are associated with salty snacks. 
+
+These item sets make sense and are not as reliant on high statistical dependence found with popular items like milk and vegetables.
 
 
 
 
-```{r, echo = FALSE}
+
+
+```{r, echo = FALSE, result = FALSE, include = FALSE}
 library(arules)
 groceries = readLines('Data/groceries.txt')
 groceries = lapply(groceries, strsplit, split = ',', fixed = TRUE)
@@ -316,7 +250,20 @@ groceries = unlist(groceries, recursive = FALSE)
 grocerytrans = as(groceries, 'transactions')
 basketrules <- apriori(grocerytrans, 
 	parameter=list(support=.01, confidence=.5, maxlen=4))
+```
+
+```{r, echo = FALSE}
 inspect(basketrules)
+```
+
+###Using Lift
+
+```{r, echo = FALSE, include = FALSE}
+basketrules <- apriori(grocerytrans, 
+	parameter=list(support=.001, confidence=.5, maxlen=4))
+```
+```{r, echo = FALSE}
+inspect(subset(basketrules, subset = lift > 10))
 ```
 
 
