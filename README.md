@@ -2,6 +2,7 @@
 Unsupervised Learning with Dr. Scott
 
 This folder contains the following documents:
+
 [Module 9 8-5-15.pdf] (https://github.com/julianghadially/Predictive-Modeling/blob/master/Module%209%208-5-15.pdf)
 Authors: Shane Kennedy, Drew Lieberman, and Julian Ghadially
 
