@@ -175,6 +175,7 @@ Naive Bayes did well predicting authors. Random Forests can also be applied to t
 Using 50 principal components, the random forest model is fit to the training data and used to predict on the test data. mtry is set to 4 and number of trees to 100. The percent of correct author attributions obtained is **66%.** This is higher than the Naive Bayes because Random Forest is using more important components dictated by PCA. As a result, the five authors that were difficult to predict are less difficult to predict. shown below is a table of prediction accuracy for each author by Random Forests.
 
 
+
 ```{r, echo = FALSE, result = FALSE, include = FALSE}
 library(randomForest)
 PC_X_train = prcomp(X_train, center = TRUE, scale = TRUE)
@@ -212,7 +213,9 @@ mpa.df
 ```
 
 
+**Comparing Models**
 
+While both models perform well out of sample, Random Forest model with PCA is the better model due to the use of the important principal components. The Naive-Bayes model used does not have this advantage. 
 
 
 
