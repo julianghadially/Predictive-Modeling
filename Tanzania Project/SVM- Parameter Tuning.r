@@ -8,7 +8,7 @@
 
 library(e1071)
 
-svm.model = svm(status_group ~ .-lga-date_recorded-extraction_type, data = x, kernel = "linear", probability = TRUE)
+svm.model = svm(status_group ~ .-lga-date_recorded-extraction_group-management_group-quality_group-quantity_group, data = x, kernel = "linear", probability = TRUE)
 svm.pred = predict(svm.model, xt[,-which(colnames(data_train_pre)=="status_group")], probability = TRUE, decision.values = TRUE)
 
 table(svm.pred, xt$status_group)
